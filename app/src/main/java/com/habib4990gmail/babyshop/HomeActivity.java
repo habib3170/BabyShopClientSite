@@ -1,5 +1,6 @@
 package com.habib4990gmail.babyshop;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -36,6 +37,8 @@ public class HomeActivity extends AppCompatActivity
     TextView txtFullName;
     RecyclerView recyler_menu;
     RecyclerView.LayoutManager layoutManager;
+
+    FirebaseRecyclerAdapter<Category,MenuViewHolder> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +87,7 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void loadMenu() {
-      FirebaseRecyclerAdapter<Category,MenuViewHolder> adapter = new FirebaseRecyclerAdapter<Category, MenuViewHolder>(Category.class,R.layout.menu_item,MenuViewHolder.class,category) {
+      adapter = new FirebaseRecyclerAdapter<Category, MenuViewHolder>(Category.class,R.layout.menu_item,MenuViewHolder.class,category) {
           @Override
           protected void populateViewHolder(MenuViewHolder viewHolder, Category model, int position) {
               viewHolder.txtMenuName.setText(model.getName());
@@ -93,7 +96,11 @@ public class HomeActivity extends AppCompatActivity
               viewHolder.setItemClickListener(new ItemClickListener() {
                   @Override
                   public void onClick(View view, int position, boolean isLongClick) {
-                      Toast.makeText(HomeActivity.this,""+clickItem.getName(), Toast.LENGTH_SHORT).show();
+                      //Get CategoryId and send to new Activity
+                      Intent itemList = new Intent(HomeActivity.this,ItemListActivity.class);
+                      //Because Category is key, so we just get key of this item
+                      itemList.putExtra("CategoryId",adapter.getRef(position).getKey());
+                      startActivity(itemList);
                   }
               });
           }
