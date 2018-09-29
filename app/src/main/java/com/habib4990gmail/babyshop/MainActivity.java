@@ -26,14 +26,6 @@ public class MainActivity extends AppCompatActivity {
         Typeface face = Typeface.createFromAsset(getAssets(),"fonts/Nabila.ttf");
         textSlogan.setTypeface(face);
 
-        btnSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent signUp = new Intent(MainActivity.this,SignUpActivity.class);
-                startActivity(signUp);
-
-            }
-        });
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

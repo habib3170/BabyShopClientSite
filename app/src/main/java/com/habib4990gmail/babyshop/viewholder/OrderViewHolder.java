@@ -3,26 +3,24 @@ package com.habib4990gmail.babyshop.viewholder;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.habib4990gmail.babyshop.Interface.ItemClickListener;
 import com.habib4990gmail.babyshop.R;
 
-public class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+public class OrderViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-    public TextView item_name,item_price;
-    public ImageView item_image,quick_cart;
+    public TextView txtOrderId,txtOrderStatus,txtOrderPhone,txtOrderAddress;
 
     private ItemClickListener itemClickListener;
 
-
-    public ItemViewHolder(View itemView) {
+    public OrderViewHolder(@NonNull View itemView) {
         super(itemView);
-        item_name = (TextView)itemView.findViewById(R.id.item_name);
-        item_price = (TextView)itemView.findViewById(R.id.item_price);
-        item_image = (ImageView) itemView.findViewById(R.id.item_image);
-        quick_cart = (ImageView) itemView.findViewById(R.id.btn_quick_cart);
+
+        txtOrderId = (TextView)itemView.findViewById(R.id.order_id);
+        txtOrderStatus = (TextView)itemView.findViewById(R.id.order_status);
+        txtOrderPhone = (TextView)itemView.findViewById(R.id.order_phone);
+        txtOrderAddress = (TextView)itemView.findViewById(R.id.order_address);
 
         itemView.setOnClickListener(this);
     }
@@ -34,5 +32,6 @@ public class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     @Override
     public void onClick(View view) {
         itemClickListener.onClick(view,getAdapterPosition(),false);
+
     }
 }

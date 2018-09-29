@@ -18,13 +18,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SignInActivity" />
-        <activity android:name=".SignUpActivity" />
+        <activity android:name=".SignInActivity"
+            android:parentActivityName=".MainActivity"/>
+        <activity android:name=".SignUpActivity"
+            android:parentActivityName=".SignInActivity"/>
         <activity
             android:name=".HomeActivity"
             android:label="@string/title_activity_home"
-            android:theme="@style/AppTheme" />
-        <activity android:name=".ItemListActivity"></activity>
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
+        <activity android:name=".ItemListActivity"
+            android:parentActivityName=".HomeActivity"/>
+        <activity android:name=".ItemDetailActivity"
+            android:parentActivityName=".HomeActivity"/>
+        <activity android:name=".CartActivity"
+            android:parentActivityName=".HomeActivity"/>
+        <activity android:name=".OrderStatusActivity"
+            android:parentActivityName=".HomeActivity"/>
+
+        <service
+            android:name=".service.ListenOrder"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

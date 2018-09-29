@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.signin.SignIn;
@@ -22,6 +23,7 @@ import com.habib4990gmail.babyshop.model.User;
 public class SignInActivity extends AppCompatActivity {
     EditText edtPhone,edtPassword;
     Button btnSignIn;
+    TextView btnSignUp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +33,7 @@ public class SignInActivity extends AppCompatActivity {
         edtPhone = (EditText)findViewById(R.id.edtPhone);
         edtPassword = (EditText)findViewById(R.id.edtPassword);
         btnSignIn = (Button)findViewById(R.id.btnSignIn);
+        btnSignUp = (TextView)findViewById(R.id.btnSignUp);
 
         //Init Firebase
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -39,40 +42,59 @@ public class SignInActivity extends AppCompatActivity {
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (edtPhone.getText().toString().isEmpty() || edtPassword.getText().toString().isEmpty()) {
+                    Toast.makeText(SignInActivity.this, "Fild is Empty !", Toast.LENGTH_SHORT).show();
+                }else {
 
-                final ProgressDialog mDialog = new ProgressDialog(SignInActivity.this);
-                mDialog.setMessage("Please Waiting");
-                mDialog.show();
+                    if (Common.isConnectedToInterner(getBaseContext())) {
 
-                table_user.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        //Check if user not exist in database
-                        if(dataSnapshot.child(edtPhone.getText().toString()).exists()) {
-                            //Get User information
-                            mDialog.dismiss();
-                            User user = dataSnapshot.child(edtPhone.getText().toString()).getValue(User.class);
-                            if (user.getPassword().equals(edtPassword.getText().toString())) {
-                                Intent homeIntent = new Intent(SignInActivity.this,HomeActivity.class);
-                                Common.currentUser = user;
-                                startActivity(homeIntent);
-                                finish();
-                            } else {
-                                Toast.makeText(SignInActivity.this, "Wrong Password !", Toast.LENGTH_SHORT).show();
+                        final ProgressDialog mDialog = new ProgressDialog(SignInActivity.this);
+                        mDialog.setMessage("Please Waiting...");
+                        mDialog.show();
+
+                        table_user.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                //Check if user not exist in database
+                                if (dataSnapshot.child(edtPhone.getText().toString()).exists()) {
+                                    //Get User information
+                                    mDialog.dismiss();
+                                    User user = dataSnapshot.child(edtPhone.getText().toString()).getValue(User.class);
+                                    user.setPhone(edtPhone.getText().toString()); //set Phone
+                                    if (user.getPassword().equals(edtPassword.getText().toString())) {
+                                        Intent homeIntent = new Intent(SignInActivity.this, HomeActivity.class);
+                                        Common.currentUser = user;
+                                        startActivity(homeIntent);
+                                        finish();
+                                    } else {
+                                        Toast.makeText(SignInActivity.this, "Wrong Password !", Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
+                                    mDialog.dismiss();
+                                    Toast.makeText(SignInActivity.this, "User Not exist in Database !", Toast.LENGTH_SHORT).show();
+                                }
+
                             }
-                        }else
-                        {
-                            mDialog.dismiss();
-                            Toast.makeText(SignInActivity.this, "User Not exist in Database !", Toast.LENGTH_SHORT).show();
-                        }
 
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+
+                    } else {
+                        Toast.makeText(SignInActivity.this, "Please check your connection !", Toast.LENGTH_SHORT).show();
+                        return;
                     }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
+                }
+            }
+        });
+        btnSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent signUp = new Intent(SignInActivity.this,SignUpActivity.class);
+                startActivity(signUp);
 
             }
         });

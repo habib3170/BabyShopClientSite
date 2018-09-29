@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -20,12 +21,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.andremion.counterfab.CounterFab;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.habib4990gmail.babyshop.Interface.ItemClickListener;
 import com.habib4990gmail.babyshop.common.Common;
+import com.habib4990gmail.babyshop.database.Database;
 import com.habib4990gmail.babyshop.model.Category;
+import com.habib4990gmail.babyshop.service.ListenOrder;
 import com.habib4990gmail.babyshop.viewholder.MenuViewHolder;
 import com.squareup.picasso.Picasso;
 
@@ -39,6 +43,8 @@ public class HomeActivity extends AppCompatActivity
     RecyclerView.LayoutManager layoutManager;
 
     FirebaseRecyclerAdapter<Category,MenuViewHolder> adapter;
+
+    CounterFab fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +60,15 @@ public class HomeActivity extends AppCompatActivity
 
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (CounterFab) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent cartIntent = new Intent(HomeActivity.this,CartActivity.class);
+                startActivity(cartIntent);
             }
         });
+        fab.setCount(new Database(this).getCuntCart());
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -80,10 +87,22 @@ public class HomeActivity extends AppCompatActivity
         //Load Menu
         recyler_menu = (RecyclerView)findViewById(R.id.recycler_menu);
         recyler_menu.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(this);
-        recyler_menu.setLayoutManager(layoutManager);
+        //layoutManager = new LinearLayoutManager(this);
+        //recyler_menu.setLayoutManager(layoutManager);
+        recyler_menu.setLayoutManager(new GridLayoutManager(this,2));
 
-        loadMenu();
+        if(Common.isConnectedToInterner(this)){
+            loadMenu();
+        }
+        else
+        {
+            Toast.makeText(this, "Please check your connection !", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //Register Service
+        Intent service = new Intent(HomeActivity.this, ListenOrder.class);
+        startService(service);
     }
 
     private void loadMenu() {
@@ -110,12 +129,10 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
+//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        if (drawer.isDrawerOpen(GravityCompat.START)) {
+//            drawer.closeDrawer(GravityCompat.START);
+//       } else {super.onBackPressed();}
     }
 
     @Override
@@ -127,7 +144,8 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+        if(item.getItemId() == R.id.refresh)
+            loadMenu();
 
         return super.onOptionsItemSelected(item);
     }
@@ -139,17 +157,31 @@ public class HomeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_menu) {
-            // Handle the camera action
+
         } else if (id == R.id.nav_cart) {
+            Intent cartIntent = new Intent(HomeActivity.this,CartActivity.class);
+            startActivity(cartIntent);
 
         } else if (id == R.id.nav_orders) {
+            Intent orderIntent = new Intent(HomeActivity.this,OrderStatusActivity.class);
+            startActivity(orderIntent);
 
         } else if (id == R.id.nav_log_out) {
+            //Logout
+            Intent signIn = new Intent(HomeActivity.this,SignInActivity.class);
+            signIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(signIn);
 
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        fab.setCount(new Database(this).getCuntCart());
     }
 }
